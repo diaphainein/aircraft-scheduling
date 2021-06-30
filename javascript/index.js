@@ -13,45 +13,90 @@ function getAllAircraft() {
     .done(function(aircraftList) {
         console.log(aircraftList);
         // display aircraft in left sidebar
-        aircraftList.results.forEach(function(nameItem) {
-            $('#aircraftContainer').append(`<div class='col-12 border-black border-bottom content'>${nameItem.data[i].ident}</div>`);
+        aircraftList.data.forEach(function(nameItem) {
+            $('#aircraftContainer').append(`<div class='col-12 border-black content center'>${nameItem.ident}</div>`);
+            $('#aircraftName').append(`${nameItem.ident}`)
         })
     });
 }
+// array for flights in rotation list
+const rotationList = [];
 
-// API call to get available flights for selected aircraft (only one aircraft)
+function renderRotationList() {
+    // clear flight list in UI
+    $('#rotationContainer').empty();
+    // loop and append sorted list to UI
+    rotationList.forEach(function(x) {
+        $('#rotationContainer').append(`<div id='flight${x.id}' class='col-12 content border-black rotation-item'>
+            <div class='flight-box flex'>
+                <h3 class='rotation-title'>Flight: <span>${x.id}</span></h3>
+                </div> 
+                <div class='flight-info flex'>
+                    <div class='flight-info-display'><span>${x.origin}</span><span>${x.readable_departure}</span></div>
+                    <span><i class='bi bi-arrow-right'></i></span>
+                    <div class='flight-info-display'><span>${x.destination}</span><span>${x.readable_arrival}</span></div>
+                </div>
+                <div class='btn remove'>Remove Flight -</div>
+            </div>
+        </div>`);
+        // click handler for removal of flight from list
+        $(`#flight${x.id} > .remove`).click(x, removeFlightHandler);
+    });
+}
+
+// on click of +, flight is selected
+function selectFlightHandler(flightItemEvent) {
+    let flightItem = flightItemEvent.data;
+    console.log(flightItem);
+    // rule: flights must be in order in rotation list
+    // added flights go into rotationList array
+    rotationList.push(flightItem);
+    // sort the array
+    rotationList.sort(function(flightItem1, flightItem2) {
+        if (flightItem1.departuretime < flightItem2.departuretime) {
+            return -1;
+          }
+          if (flightItem1.departuretime > flightItem2.departuretime) {
+            return 1;
+          }
+          return 0;
+    });
+    // display list in UI
+    renderRotationList();
+}
+
+// on click of -, flight will disappear from center rotation list
+function removeFlightHandler(flightItemEvent) {
+    let flightItem = flightItemEvent.data;
+    console.log(flightItem);
+    // selected flight is removed from rotationList array
+    rotationList.pop(flightItem);
+    // display list in UI
+    renderRotationList();
+}
+
+// API call to get available flights
 function getAllFlights() {
     $.ajax(`https://infinite-dawn-93085.herokuapp.com/flights`)
     .done(function(flightList) {
         console.log(flightList);
         // display available flights in right sidebar
-        aircraftList.results.forEach(function(flightItem) {
-            $('#rotationContainer').append(`<div class='col-12 border-black content'><div class='flight-box flex'><h3 class='rotation-title'>Flight: <span>${flightItem.data[i].id}</span></h3></div> 
-            <div class="flight-info flex">
-                 <div><span>${flightItem.data[i].origin}</span><span>${flightItem.data[i].readable_departure}</span></div>
-                 <i class="arrow-right"></i>
-                 <div><span>${flightItem.data[i].destination}</span><span>${flightItem.data[i].readable_arrival}</span></div>
+        flightList.data.forEach(function(flightItem) {
+            $('#flightContainer').append(`<div id='flight${flightItem.id}' class='col-12 border-black center content content-inner'><div class='flight-box flex center'><span>${flightItem.id}</span></div> 
+            <div class="flight-info center flex">
+                 <div><span>${flightItem.origin}</span><span>${flightItem.readable_departure}</span></div>
+                 <div><span>${flightItem.destination}</span><span>${flightItem.readable_arrival}</span></div>
             </div>
+            <div class='add btn'>Add Flight +</div>
          </div>`);
+         $(`#flight${flightItem.id} > .add`).click(flightItem, selectFlightHandler);
         })
     });
 }
 
-// on click, flight is selected: background becomes gray, + sign appears for user to add to rotation
-
-// on click of +, flight appears in center rotation list and disappears from right sidebar (flights in center rotation list will have a - icon to remove flight and place it back in the right flights sidebar)
-
-
-// display selected flights in center rotation list
-
-    // flights must be in order
-
-    // on click of -, flight will disappear from center rotation list and reappear in the right flights sidebar
-
-
 // display utilization % for selected aircraft (only one aircraft) in left sidebar
 
-    // % will change based on # of flights in the rotation/the time the aircraft is on scheduled service per 24 hours
+    // % will change based on the time the aircraft is on scheduled service per 24 hours
 
 
 // enforce rules
@@ -72,10 +117,9 @@ function getAllFlights() {
         // these will change dynamically as flights are added and/or subtracted from the rotation list
 
 
-// document.ready - execute!
+// document.ready - execute program!
 $(document).ready(function() {
     getTomorrow();
     getAllAircraft();
     getAllFlights();
-
 });

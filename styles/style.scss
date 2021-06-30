@@ -1,4 +1,50 @@
 // Global Styles
-.active {
-    background-color: gray;
+.flex {
+    display: flex;
+}
+.content {
+    padding: 1.5rem 3rem;
+    margin-bottom: 1rem;
+}
+.content-inner {
+    padding: 1rem 2rem;
+}
+.center {
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+}
+.border-black {
+    border: 2px solid #000;
+}
+
+// Modular Styles
+.flight-info {
+    margin-bottom: .5rem;
+    justify-content: space-between;
+}
+.rotation-item {
+    span {
+        margin-right: 1rem;
+        i {
+            font-size: 1.1rem;
+        }
+    }
+}
+
+// Buttons
+.btn {
+    border: 1px solid #000;
+    color: #000;
+    background: transparent;
+    &:hover,
+    &:focus {
+        background: #000;
+        color: #fff;
+    }
+}
+
+// Functional Styles
+.add, .remove {
+    cursor: pointer; 
 }
